@@ -35,4 +35,3 @@ PostgreSQL
     ├── events
     ├── categories
     └── content
-
