@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-body bg-grain antialiased;
+    background-repeat: repeat;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.teal.DEFAULT');
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Signature element: hand-pinned tag, used for category labels & price tags */
+  .pin-tag {
+    position: relative;
+  }
+  .pin-tag::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: theme('colors.marigold.DEFAULT');
+    box-shadow: theme('boxShadow.pin');
+  }
+
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.18em] text-teal-dark;
+  }
+
+  .container-page {
+    @apply max-w-6xl mx-auto px-5 sm:px-8;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-ink text-paper px-5 py-3 font-body font-medium tracking-wide transition-colors hover:bg-teal-dark;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-ink/25 px-5 py-3 font-body font-medium tracking-wide text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper;
+  }
+
+  .card-surface {
+    @apply bg-paper border border-ink/10 rounded-sm shadow-card;
+  }
+}
