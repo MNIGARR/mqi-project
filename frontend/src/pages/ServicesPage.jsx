@@ -8,15 +8,22 @@ export default function ServicesPage() {
   const [services, setServices] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     let active = true
-    Promise.all([getServices(), getCategories()]).then(([serviceData, categoryData]) => {
-      if (!active) return
-      setServices(serviceData)
-      setCategories(categoryData)
-      setLoading(false)
-    })
+    Promise.all([getServices(), getCategories()])
+      .then(([serviceData, categoryData]) => {
+        if (!active) return
+        setServices(serviceData)
+        setCategories(categoryData)
+        setLoading(false)
+      })
+      .catch((err) => {
+        if (!active) return
+        setError(err.message)
+        setLoading(false)
+      })
     return () => {
       active = false
     }
@@ -40,6 +47,10 @@ export default function ServicesPage() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="card-surface p-6 h-40 animate-pulse bg-ink/5" />
           ))}
+        </div>
+      ) : error ? (
+        <div className="card-surface p-10 text-center text-ink-soft">
+          Unable to load services right now{error ? `: ${error}` : '.'}
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 gap-6">

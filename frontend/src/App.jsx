@@ -6,6 +6,7 @@ import ProductsPage from './pages/ProductsPage'
 import ServicesPage from './pages/ServicesPage'
 import EventsPage from './pages/EventsPage'
 import AdminLoginPage from './pages/AdminLoginPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

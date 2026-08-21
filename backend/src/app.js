@@ -5,6 +5,9 @@ const authRoutes = require('./routes/auth.routes');
 const eventsRoutes = require('./routes/events.routes');
 const contentRoutes = require('./routes/content.routes');
 const adminRoutes = require('./routes/admin.routes');
+const categoriesRoutes = require('./routes/categories.routes');
+const productsRoutes = require('./routes/products.routes');
+const servicesRoutes = require('./routes/services.routes');
 const { errorHandler } = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -37,6 +40,9 @@ function createApp({ db } = {}) {
   app.use('/api/events', eventsRoutes);
   app.use('/api/content', contentRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/api/categories', categoriesRoutes);
+  app.use('/api/products', productsRoutes);
+  app.use('/api/services', servicesRoutes);
 
   app.use((req, res) => {
     res.status(404).json({ message: 'Not found' });
