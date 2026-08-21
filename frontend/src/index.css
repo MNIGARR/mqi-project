@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-body bg-grain antialiased;
+    background-repeat: repeat;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.purple.DEFAULT');
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .pin-tag {
+    position: relative;
+  }
+  .pin-tag::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #F17A34, #E01D82);
+    box-shadow: theme('boxShadow.pin');
+  }
+
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.18em] text-purple-900;
+  }
+
+  .container-page {
+    @apply max-w-6xl mx-auto px-5 sm:px-8;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-blue-600 text-white px-5 py-3 font-body font-medium tracking-wide shadow-card transition-opacity hover:opacity-90;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-purple-500/30 px-5 py-3 font-body font-medium tracking-wide text-ink transition-colors hover:border-purple-500 hover:bg-purple-500/5;
+  }
+
+  .card-surface {
+    @apply bg-white border border-purple-500/10 rounded-sm shadow-card;
+  }
+
+  .brand-rule {
+    height: 3px;
+    background: linear-gradient(90deg, #F17A34, #E01D82, #8A2BD9);
+    border-radius: 9999px;
+  }
+}
