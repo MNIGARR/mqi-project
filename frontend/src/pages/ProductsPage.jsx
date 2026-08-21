@@ -9,16 +9,23 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState([])
   const [activeCategory, setActiveCategory] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     let active = true
     setLoading(true)
-    Promise.all([getProducts(), getCategories()]).then(([productData, categoryData]) => {
-      if (!active) return
-      setProducts(productData)
-      setCategories(categoryData)
-      setLoading(false)
-    })
+    Promise.all([getProducts(), getCategories()])
+      .then(([productData, categoryData]) => {
+        if (!active) return
+        setProducts(productData)
+        setCategories(categoryData)
+        setLoading(false)
+      })
+      .catch((err) => {
+        if (!active) return
+        setError(err.message)
+        setLoading(false)
+      })
     return () => {
       active = false
     }
@@ -60,6 +67,8 @@ export default function ProductsPage() {
 
       {loading ? (
         <GridSkeleton />
+      ) : error ? (
+        <ErrorState message={error} />
       ) : filtered.length === 0 ? (
         <EmptyState />
       ) : (
@@ -114,6 +123,14 @@ function EmptyState() {
   return (
     <div className="card-surface p-10 text-center text-ink-soft">
       Nothing here yet — try a different category.
+    </div>
+  )
+}
+
+function ErrorState({ message }) {
+  return (
+    <div className="card-surface p-10 text-center text-ink-soft">
+      Unable to load products right now{message ? `: ${message}` : '.'}
     </div>
   )
 }

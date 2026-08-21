@@ -1,11 +1,25 @@
-import { useState } from 'react'
-import { loginAdmin } from '../services/authService'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { loginAdmin, getCurrentAdmin } from '../services/authService'
 
 export default function AdminLoginPage() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    let active = true
+    getCurrentAdmin().then((currentAdmin) => {
+      if (active && currentAdmin) {
+        navigate('/admin', { replace: true })
+      }
+    })
+    return () => {
+      active = false
+    }
+  }, [navigate])
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -13,7 +27,7 @@ export default function AdminLoginPage() {
     setError('')
     try {
       await loginAdmin({ email, password })
-      setStatus('idle')
+      navigate('/admin', { replace: true })
     } catch (err) {
       setStatus('error')
       setError(err.message)
@@ -76,7 +90,7 @@ export default function AdminLoginPage() {
         </form>
 
         <p className="mt-6 text-center text-xs text-ink-soft">
-          This form is not yet connected to the backend.
+          Sign in to manage MQI Community content.
         </p>
       </div>
     </div>

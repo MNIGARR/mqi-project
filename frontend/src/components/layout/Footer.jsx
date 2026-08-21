@@ -7,9 +7,11 @@ export default function Footer() {
 
   useEffect(() => {
     let active = true
-    getContent().then((data) => {
-      if (active) setLinks({ whatsapp: data.whatsapp, instagram: data.instagram })
-    })
+    getContent()
+      .then((data) => {
+        if (active) setLinks({ whatsapp: data.whatsapp, instagram: data.instagram })
+      })
+      .catch(() => {})
     return () => {
       active = false
     }

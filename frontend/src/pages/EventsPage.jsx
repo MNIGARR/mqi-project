@@ -6,14 +6,21 @@ import SectionHeading from '../components/ui/SectionHeading'
 export default function EventsPage() {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     let active = true
-    getEvents().then((data) => {
-      if (!active) return
-      setEvents(data)
-      setLoading(false)
-    })
+    getEvents()
+      .then((data) => {
+        if (!active) return
+        setEvents(data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        if (!active) return
+        setError(err.message)
+        setLoading(false)
+      })
     return () => {
       active = false
     }
@@ -32,6 +39,10 @@ export default function EventsPage() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="card-surface h-40 animate-pulse bg-ink/5" />
           ))}
+        </div>
+      ) : error ? (
+        <div className="card-surface p-10 text-center text-ink-soft">
+          Unable to load events right now{error ? `: ${error}` : '.'}
         </div>
       ) : events.length === 0 ? (
         <div className="card-surface p-10 text-center text-ink-soft">

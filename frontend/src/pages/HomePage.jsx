@@ -13,14 +13,14 @@ export default function HomePage() {
 
   useEffect(() => {
     let active = true
-    Promise.all([getContent(), getCategories(), getEvents()]).then(
-      ([contentData, categoryData, eventData]) => {
+    Promise.all([getContent(), getCategories(), getEvents()])
+      .then(([contentData, categoryData, eventData]) => {
         if (!active) return
         setContent(contentData)
         setCategories(categoryData)
         setNextEvent(eventData[0] || null)
-      }
-    )
+      })
+      .catch(() => {})
     return () => {
       active = false
     }

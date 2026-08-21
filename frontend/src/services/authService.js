@@ -30,6 +30,10 @@ export function getStoredAdminToken() {
   return localStorage.getItem('mqi_admin_token') || ''
 }
 
+export function logoutAdmin() {
+  localStorage.removeItem('mqi_admin_token')
+}
+
 export async function getCurrentAdmin() {
   const token = getStoredAdminToken()
   if (!token) {

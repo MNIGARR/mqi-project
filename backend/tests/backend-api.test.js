@@ -9,6 +9,12 @@ const jwt = require('jsonwebtoken');
 
 const createApp = require('../src/app');
 
+function extractSetColumns(sql) {
+  const setMatch = sql.match(/set\s+(.+?)\s+where/i);
+  if (!setMatch) return [];
+  return setMatch[1].split(',').map((part) => part.trim().split('=')[0].trim());
+}
+
 function createFakeDb() {
   const adminHash = bcrypt.hashSync('ChangeMe123!', 10);
   const state = {
@@ -19,8 +25,32 @@ function createFakeDb() {
     content: [
       { key: 'about', value: 'About the community.', updated_at: '2026-09-01T00:00:00.000Z' },
       { key: 'mission', value: 'Our mission.', updated_at: '2026-09-01T00:00:00.000Z' }
+    ],
+    categories: [
+      { id: 1, name: 'Handmade', created_at: '2026-09-01T00:00:00.000Z' },
+      { id: 2, name: 'Food', created_at: '2026-09-01T00:00:00.000Z' }
+    ],
+    products: [
+      { id: 1, name: 'Handmade Bag', description: 'A nice bag', price: '35.00', category_id: 1, image_url: 'https://example.com/bag.jpg', created_at: '2026-09-01T00:00:00.000Z', updated_at: '2026-09-01T00:00:00.000Z' }
+    ],
+    services: [
+      { id: 1, name: 'Sewing Service', description: 'Custom sewing', price: '20.00', category_id: 1, created_at: '2026-09-01T00:00:00.000Z', updated_at: '2026-09-01T00:00:00.000Z' }
     ]
   };
+
+  let nextCategoryId = 3;
+  let nextProductId = 2;
+  let nextServiceId = 2;
+
+  function joinCategory(row) {
+    if (!row) return row;
+    const category = state.categories.find((c) => c.id === row.category_id);
+    return {
+      ...row,
+      category_id: category ? category.id : null,
+      category_name: category ? category.name : null,
+    };
+  }
 
   const db = {
     query: async (sql, params = []) => {
@@ -114,6 +144,156 @@ function createFakeDb() {
         const item = { key, value, updated_at: new Date().toISOString() };
         state.content.push(item);
         return { rows: [item] };
+      }
+
+      if (text.includes('delete from categories')) {
+        const id = Number(params[0]);
+        const index = state.categories.findIndex((item) => item.id === id);
+        if (index === -1) return { rowCount: 0 };
+        state.categories.splice(index, 1);
+        return { rowCount: 1 };
+      }
+
+      if (text.includes('insert into categories')) {
+        const name = params[0];
+        if (state.categories.some((item) => item.name === name)) {
+          const error = new Error('duplicate key value violates unique constraint');
+          error.code = '23505';
+          throw error;
+        }
+        const inserted = { id: nextCategoryId++, name, created_at: new Date().toISOString() };
+        state.categories.push(inserted);
+        return { rows: [inserted], rowCount: 1 };
+      }
+
+      if (text.includes('update categories')) {
+        const id = Number(params[params.length - 1]);
+        const name = params[0];
+        const category = state.categories.find((item) => item.id === id);
+        if (!category) return { rows: [] };
+        if (state.categories.some((item) => item.name === name && item.id !== id)) {
+          const error = new Error('duplicate key value violates unique constraint');
+          error.code = '23505';
+          throw error;
+        }
+        category.name = name;
+        return { rows: [category] };
+      }
+
+      if (text.includes('from categories')) {
+        if (text.includes('where id')) {
+          const id = Number(params[0]);
+          const category = state.categories.find((item) => item.id === id);
+          return { rows: category ? [category] : [] };
+        }
+        return { rows: [...state.categories].sort((a, b) => a.name.localeCompare(b.name)) };
+      }
+
+      if (text.includes('delete from products')) {
+        const id = Number(params[0]);
+        const index = state.products.findIndex((item) => item.id === id);
+        if (index === -1) return { rowCount: 0 };
+        state.products.splice(index, 1);
+        return { rowCount: 1 };
+      }
+
+      if (text.includes('insert into products')) {
+        const inserted = {
+          id: nextProductId++,
+          name: params[0],
+          description: params[1],
+          price: params[2],
+          category_id: params[3],
+          image_url: params[4],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        state.products.push(inserted);
+        return { rows: [{ id: inserted.id }], rowCount: 1 };
+      }
+
+      if (text.includes('update products')) {
+        const id = Number(params[params.length - 1]);
+        const product = state.products.find((item) => item.id === id);
+        if (!product) return { rowCount: 0 };
+        const columns = extractSetColumns(sql);
+        columns.forEach((column, index) => {
+          product[column] = params[index];
+        });
+        product.updated_at = new Date().toISOString();
+        return { rowCount: 1 };
+      }
+
+      if (text.includes('from products') && text.includes('join')) {
+        if (text.includes('where p.id')) {
+          const id = Number(params[0]);
+          const product = state.products.find((item) => item.id === id);
+          return { rows: product ? [joinCategory(product)] : [] };
+        }
+        return {
+          rows: [...state.products]
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at) || b.id - a.id)
+            .map(joinCategory),
+        };
+      }
+
+      if (text.includes('from products')) {
+        const id = Number(params[0]);
+        const product = state.products.find((item) => item.id === id);
+        return { rows: product ? [{ id: product.id }] : [] };
+      }
+
+      if (text.includes('delete from services')) {
+        const id = Number(params[0]);
+        const index = state.services.findIndex((item) => item.id === id);
+        if (index === -1) return { rowCount: 0 };
+        state.services.splice(index, 1);
+        return { rowCount: 1 };
+      }
+
+      if (text.includes('insert into services')) {
+        const inserted = {
+          id: nextServiceId++,
+          name: params[0],
+          description: params[1],
+          price: params[2],
+          category_id: params[3],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        state.services.push(inserted);
+        return { rows: [{ id: inserted.id }], rowCount: 1 };
+      }
+
+      if (text.includes('update services')) {
+        const id = Number(params[params.length - 1]);
+        const service = state.services.find((item) => item.id === id);
+        if (!service) return { rowCount: 0 };
+        const columns = extractSetColumns(sql);
+        columns.forEach((column, index) => {
+          service[column] = params[index];
+        });
+        service.updated_at = new Date().toISOString();
+        return { rowCount: 1 };
+      }
+
+      if (text.includes('from services') && text.includes('join')) {
+        if (text.includes('where s.id')) {
+          const id = Number(params[0]);
+          const service = state.services.find((item) => item.id === id);
+          return { rows: service ? [joinCategory(service)] : [] };
+        }
+        return {
+          rows: [...state.services]
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at) || b.id - a.id)
+            .map(joinCategory),
+        };
+      }
+
+      if (text.includes('from services')) {
+        const id = Number(params[0]);
+        const service = state.services.find((item) => item.id === id);
+        return { rows: service ? [{ id: service.id }] : [] };
       }
 
       return { rows: [] };
@@ -362,4 +542,289 @@ test('GET /api/admin/stats returns count data with a valid token', async () => {
   assert.ok(response.body.products >= 0);
   assert.ok(response.body.services >= 0);
   assert.ok(response.body.categories >= 0);
+});
+
+test('GET /api/categories returns categories', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/categories');
+  assert.equal(response.status, 200);
+  assert.ok(Array.isArray(response.body));
+  assert.ok(response.body.length >= 1);
+});
+
+test('GET /api/categories/:id returns a category', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/categories/1');
+  assert.equal(response.status, 200);
+  assert.equal(response.body.id, 1);
+});
+
+test('GET /api/categories/:id returns 404 for nonexistent category', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/categories/999');
+  assert.equal(response.status, 404);
+});
+
+test('GET /api/categories/:id rejects invalid ID', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/categories/not-a-number');
+  assert.equal(response.status, 400);
+});
+
+test('POST /api/categories requires authentication', async () => {
+  const app = createTestApp();
+  const response = await request(app).post('/api/categories').send({ name: 'Clothing' });
+  assert.equal(response.status, 401);
+});
+
+test('POST /api/categories creates category with valid token', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .post('/api/categories')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Clothing' });
+
+  assert.equal(response.status, 201);
+  assert.equal(response.body.name, 'Clothing');
+});
+
+test('POST /api/categories rejects missing name', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .post('/api/categories')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({});
+
+  assert.equal(response.status, 400);
+});
+
+test('POST /api/categories rejects duplicate name', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .post('/api/categories')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Handmade' });
+
+  assert.equal(response.status, 409);
+});
+
+test('PUT /api/categories/:id requires authentication', async () => {
+  const app = createTestApp();
+  const response = await request(app).put('/api/categories/1').send({ name: 'Renamed' });
+  assert.equal(response.status, 401);
+});
+
+test('PUT /api/categories/:id updates category', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .put('/api/categories/1')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Renamed' });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.name, 'Renamed');
+});
+
+test('PUT /api/categories/:id returns 404 for nonexistent category', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .put('/api/categories/999')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Renamed' });
+
+  assert.equal(response.status, 404);
+});
+
+test('DELETE /api/categories/:id requires authentication', async () => {
+  const app = createTestApp();
+  const response = await request(app).delete('/api/categories/1');
+  assert.equal(response.status, 401);
+});
+
+test('DELETE /api/categories/:id deletes category', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .delete('/api/categories/1')
+    .set('Authorization', `Bearer ${validJwt}`);
+
+  assert.equal(response.status, 204);
+});
+
+test('GET /api/products returns products', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/products');
+  assert.equal(response.status, 200);
+  assert.ok(Array.isArray(response.body));
+  assert.ok(response.body.length >= 1);
+  assert.ok(response.body[0].category === null || typeof response.body[0].category === 'object');
+});
+
+test('GET /api/products/:id returns a product with category info', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/products/1');
+  assert.equal(response.status, 200);
+  assert.equal(response.body.id, 1);
+  assert.equal(response.body.category.name, 'Handmade');
+});
+
+test('GET /api/products/:id returns 404 for nonexistent product', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/products/999');
+  assert.equal(response.status, 404);
+});
+
+test('GET /api/products/:id rejects invalid ID', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/products/not-a-number');
+  assert.equal(response.status, 400);
+});
+
+test('POST /api/products requires authentication', async () => {
+  const app = createTestApp();
+  const response = await request(app).post('/api/products').send({ name: 'Bracelet' });
+  assert.equal(response.status, 401);
+});
+
+test('POST /api/products creates a product', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .post('/api/products')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Bracelet', price: 12.5, categoryId: 1, imageUrl: 'https://example.com/bracelet.jpg' });
+
+  assert.equal(response.status, 201);
+  assert.equal(response.body.name, 'Bracelet');
+  assert.equal(response.body.category.id, 1);
+});
+
+test('POST /api/products rejects invalid price', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .post('/api/products')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Bracelet', price: -5 });
+
+  assert.equal(response.status, 400);
+});
+
+test('POST /api/products rejects invalid category', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .post('/api/products')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Bracelet', categoryId: 999 });
+
+  assert.equal(response.status, 404);
+});
+
+test('PUT /api/products/:id updates a product', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .put('/api/products/1')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ price: 40 });
+
+  assert.equal(response.status, 200);
+  assert.equal(Number(response.body.price), 40);
+});
+
+test('PUT /api/products/:id returns 404 for nonexistent product', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .put('/api/products/999')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ price: 40 });
+
+  assert.equal(response.status, 404);
+});
+
+test('DELETE /api/products/:id requires authentication', async () => {
+  const app = createTestApp();
+  const response = await request(app).delete('/api/products/1');
+  assert.equal(response.status, 401);
+});
+
+test('DELETE /api/products/:id deletes a product', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .delete('/api/products/1')
+    .set('Authorization', `Bearer ${validJwt}`);
+
+  assert.equal(response.status, 204);
+});
+
+test('GET /api/services returns services', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/services');
+  assert.equal(response.status, 200);
+  assert.ok(Array.isArray(response.body));
+  assert.ok(response.body.length >= 1);
+});
+
+test('GET /api/services/:id returns a service with category info', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/services/1');
+  assert.equal(response.status, 200);
+  assert.equal(response.body.id, 1);
+  assert.equal(response.body.category.name, 'Handmade');
+});
+
+test('GET /api/services/:id returns 404 for nonexistent service', async () => {
+  const app = createTestApp();
+  const response = await request(app).get('/api/services/999');
+  assert.equal(response.status, 404);
+});
+
+test('POST /api/services requires authentication', async () => {
+  const app = createTestApp();
+  const response = await request(app).post('/api/services').send({ name: 'Tailoring' });
+  assert.equal(response.status, 401);
+});
+
+test('POST /api/services creates a service', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .post('/api/services')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Tailoring', price: 15, categoryId: 1 });
+
+  assert.equal(response.status, 201);
+  assert.equal(response.body.name, 'Tailoring');
+  assert.equal(response.body.category.id, 1);
+});
+
+test('POST /api/services rejects invalid price', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .post('/api/services')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ name: 'Tailoring', price: -5 });
+
+  assert.equal(response.status, 400);
+});
+
+test('PUT /api/services/:id updates a service', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .put('/api/services/1')
+    .set('Authorization', `Bearer ${validJwt}`)
+    .send({ price: 25 });
+
+  assert.equal(response.status, 200);
+  assert.equal(Number(response.body.price), 25);
+});
+
+test('DELETE /api/services/:id requires authentication', async () => {
+  const app = createTestApp();
+  const response = await request(app).delete('/api/services/1');
+  assert.equal(response.status, 401);
+});
+
+test('DELETE /api/services/:id deletes a service', async () => {
+  const app = createTestApp();
+  const response = await request(app)
+    .delete('/api/services/1')
+    .set('Authorization', `Bearer ${validJwt}`);
+
+  assert.equal(response.status, 204);
 });
