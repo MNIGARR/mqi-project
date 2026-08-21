@@ -14,9 +14,16 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-paper/90 backdrop-blur border-b border-ink/10">
       <div className="container-page flex items-center justify-between h-16">
-        <NavLink to="/" className="flex items-center gap-2 font-display text-xl font-semibold">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-marigold" aria-hidden="true" />
-          MQI Community
+        <NavLink to="/" className="flex items-center gap-3">
+          <img
+            src="/logo.jpg"
+            alt="MQI — Mingəçevir Qadın İcması"
+            className="h-11 w-11 rounded-lg object-cover shadow-card"
+          />
+          <span className="hidden sm:flex flex-col leading-tight">
+            <span className="font-display text-lg font-semibold text-ink">MQI</span>
+            <span className="text-[11px] text-ink-soft tracking-wide">Mingəçevir Qadın İcması</span>
+          </span>
         </NavLink>
 
         <nav className="hidden md:flex items-center gap-8" aria-label="Primary">
@@ -27,7 +34,7 @@ export default function Navbar() {
               end={link.to === '/'}
               className={({ isActive }) =>
                 `text-sm font-medium tracking-wide transition-colors ${
-                  isActive ? 'text-teal-dark' : 'text-ink-soft hover:text-ink'
+                  isActive ? 'text-pink-dark' : 'text-ink-soft hover:text-ink'
                 }`
               }
             >
@@ -71,7 +78,7 @@ export default function Navbar() {
                 end={link.to === '/'}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `text-base font-medium ${isActive ? 'text-teal-dark' : 'text-ink-soft'}`
+                  `text-base font-medium ${isActive ? 'text-pink-dark' : 'text-ink-soft'}`
                 }
               >
                 {link.label}

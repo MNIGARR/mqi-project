@@ -1,7 +1,7 @@
 const TONES = {
-  Handmade: 'bg-marigold/15 text-marigold-dark border-marigold/30',
-  Food: 'bg-teal/10 text-teal-dark border-teal/30',
-  Clothing: 'bg-plum/10 text-plum-dark border-plum/30',
+  Handmade: 'bg-pink/10 text-pink-dark border-pink/30',
+  Food: 'bg-orange/10 text-orange-dark border-orange/30',
+  Clothing: 'bg-purple/10 text-purple-dark border-purple/30',
   Workshops: 'bg-ink/10 text-ink border-ink/25',
 }
 

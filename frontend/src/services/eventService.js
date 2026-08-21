@@ -1,27 +1,3 @@
-<<<<<<< HEAD
-// eventService.js
-// -----------------------------------------------------------------------------
-// See categoryService.js for the swap-to-real-API pattern.
-// -----------------------------------------------------------------------------
-import { events } from '../data/mockData'
-
-const SIMULATED_DELAY_MS = 150
-
-function delay(value) {
-  return new Promise((resolve) => setTimeout(() => resolve(value), SIMULATED_DELAY_MS))
-}
-
-export async function getEvents() {
-  // Sorted soonest-first, mirroring an `ORDER BY event_date ASC` query.
-  const sorted = [...events].sort(
-    (a, b) => new Date(a.event_date) - new Date(b.event_date)
-  )
-  return delay(sorted)
-}
-
-export async function getEventById(id) {
-  return delay(events.find((e) => e.id === Number(id)) || null)
-=======
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 
 export async function getEvents() {
@@ -91,5 +67,4 @@ export async function deleteEvent(id) {
   }
 
   return true
->>>>>>> d60cabe858e61622caac5ff3a2f1c5b01fd18e67
 }

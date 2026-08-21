@@ -28,7 +28,7 @@ export default function EventCard({ event }) {
       </div>
       <div className="p-6 flex flex-1 gap-5">
         <div className="shrink-0 text-center w-14">
-          <div className="font-display text-2xl font-bold text-teal-dark leading-none">{date.day}</div>
+          <div className="font-display text-2xl font-bold text-pink-dark leading-none">{date.day}</div>
           <div className="font-mono text-xs tracking-widest text-ink-soft mt-1">{date.month}</div>
         </div>
         <div className="flex-1">

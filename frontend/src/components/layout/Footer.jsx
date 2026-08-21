@@ -19,8 +19,14 @@ export default function Footer() {
     <footer className="mt-24 border-t border-ink/10">
       <div className="container-page py-12 grid gap-10 sm:grid-cols-3">
         <div>
-          <p className="font-display text-lg font-semibold">MQI Community</p>
-          <p className="mt-2 text-sm text-ink-soft leading-relaxed max-w-xs">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.jpg" alt="MQI" className="h-9 w-9 rounded-md object-cover" />
+            <div className="leading-tight">
+              <p className="font-display text-base font-semibold">MQI</p>
+              <p className="text-[11px] text-ink-soft">Mingəçevir Qadın İcması</p>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-ink-soft leading-relaxed max-w-xs">
             A neighborhood collective of makers, cooks, and teachers.
           </p>
         </div>
@@ -38,7 +44,7 @@ export default function Footer() {
           <p className="eyebrow mb-3">Say hello</p>
           <ul className="space-y-2 text-sm">
             <li>
-              <a
+              <a 
                 href={links.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -48,7 +54,7 @@ export default function Footer() {
               </a>
             </li>
             <li>
-              <a
+              <a 
                 href={links.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
