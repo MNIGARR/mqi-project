@@ -21,3 +21,4 @@ INSERT INTO content (key, value) VALUES
     ('activities', 'What we do.'),
     ('whatsapp', 'https://wa.me/000000000'),
     ('instagram', 'https://instagram.com/');
+
