@@ -29,7 +29,7 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="border-b border-ink/10">
+      <section className="border-b border-ink/10 bg-brand-gradient-soft">
         <div className="container-page py-16 sm:py-24 grid lg:grid-cols-[1.2fr,1fr] gap-12 items-center">
           <div>
             <p className="eyebrow mb-4">A neighborhood collective</p>
@@ -38,6 +38,7 @@ export default function HomePage() {
               <br />
               Shared by neighbors.
             </h1>
+            <div className="brand-rule w-16 mt-5" />
             <p className="mt-6 text-lg text-ink-soft leading-relaxed max-w-lg">
               {content?.about}
             </p>
@@ -86,7 +87,7 @@ export default function HomePage() {
           <SectionHeading eyebrow="Don't miss it" title="Coming up next" />
           <EventCard event={nextEvent} />
           <div className="mt-6">
-            <Link to="/events" className="text-sm font-medium text-teal-dark hover:underline">
+            <Link to="/events" className="text-sm font-medium text-pink-dark hover:underline">
               View all events →
             </Link>
           </div>

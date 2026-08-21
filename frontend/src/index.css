@@ -17,7 +17,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid theme('colors.teal.DEFAULT');
+    outline: 2px solid theme('colors.purple.DEFAULT');
     outline-offset: 3px;
   }
 
@@ -32,7 +32,6 @@
 }
 
 @layer components {
-  /* Signature element: hand-pinned tag, used for category labels & price tags */
   .pin-tag {
     position: relative;
   }
@@ -44,12 +43,12 @@
     width: 8px;
     height: 8px;
     border-radius: 9999px;
-    background: theme('colors.marigold.DEFAULT');
+    background: linear-gradient(135deg, #F17A34, #E01D82);
     box-shadow: theme('boxShadow.pin');
   }
 
   .eyebrow {
-    @apply font-mono text-xs uppercase tracking-[0.18em] text-teal-dark;
+    @apply font-mono text-xs uppercase tracking-[0.18em] text-purple-900;
   }
 
   .container-page {
@@ -57,14 +56,20 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-ink text-paper px-5 py-3 font-body font-medium tracking-wide transition-colors hover:bg-teal-dark;
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-blue-600 text-white px-5 py-3 font-body font-medium tracking-wide shadow-card transition-opacity hover:opacity-90;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-ink/25 px-5 py-3 font-body font-medium tracking-wide text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper;
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-purple-500/30 px-5 py-3 font-body font-medium tracking-wide text-ink transition-colors hover:border-purple-500 hover:bg-purple-500/5;
   }
 
   .card-surface {
-    @apply bg-paper border border-ink/10 rounded-sm shadow-card;
+    @apply bg-white border border-purple-500/10 rounded-sm shadow-card;
+  }
+
+  .brand-rule {
+    height: 3px;
+    background: linear-gradient(90deg, #F17A34, #E01D82, #8A2BD9);
+    border-radius: 9999px;
   }
 }

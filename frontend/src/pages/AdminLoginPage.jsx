@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-5 py-16">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <span className="inline-block w-3 h-3 rounded-full bg-marigold mb-4" aria-hidden="true" />
+          <img src="/logo.jpg" alt="MQI" className="h-14 w-14 rounded-xl object-cover mx-auto mb-4 shadow-card" />
           <h1 className="text-2xl font-semibold">Admin sign in</h1>
           <p className="mt-2 text-sm text-ink-soft">
             Manage products, services, and events for MQI Community.
@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@mqi-project.local"
-              className="w-full rounded-sm border border-ink/20 bg-paper px-4 py-3 text-sm placeholder:text-ink-soft/50 focus:border-teal focus:outline-none"
+              className="w-full rounded-sm border border-ink/20 bg-paper px-4 py-3 text-sm placeholder:text-ink-soft/50 focus:border-purple focus:outline-none"
             />
           </div>
 
@@ -74,12 +74,12 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-sm border border-ink/20 bg-paper px-4 py-3 text-sm placeholder:text-ink-soft/50 focus:border-teal focus:outline-none"
+              className="w-full rounded-sm border border-ink/20 bg-paper px-4 py-3 text-sm placeholder:text-ink-soft/50 focus:border-purple focus:outline-none"
             />
           </div>
 
           {status === 'error' && (
-            <p role="alert" className="text-sm text-plum-dark bg-plum/10 border border-plum/20 rounded-sm px-3 py-2">
+            <p role="alert" className="text-sm text-pink-dark bg-pink/10 border border-pink/20 rounded-sm px-3 py-2">
               {error}
             </p>
           )}
